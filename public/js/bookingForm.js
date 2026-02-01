@@ -11,6 +11,25 @@ import { showToast } from "./toastHelper.js";
     const bookButtons = document.querySelectorAll(".suites-book-btn");
     let lastClickedSuiteValue = null;
 
+    // Before opening booking modal
+    bookButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        if (
+          button.dataset.requiresAuth === "true" &&
+          !window.auth.isAuthenticated()
+        ) {
+          // Show auth modal instead
+          const authModal = new bootstrap.Modal(
+            document.getElementById("authModal"),
+          );
+          authModal.show();
+          return;
+        }
+        // Proceed with booking modal
+        lastClickedSuiteValue = button.getAttribute("data-suite");
+      });
+    });
+
     // Update lastClickedSuiteValue when a BOOK NOW button is clicked
     bookButtons.forEach((button) => {
       button.addEventListener("click", () => {
@@ -53,7 +72,7 @@ import { showToast } from "./toastHelper.js";
 
       if (!validatePhoneNumber(phoneInput.value)) {
         phoneInput.setCustomValidity(
-          "Please enter a valid Philippine phone number."
+          "Please enter a valid Philippine phone number.",
         );
         valid = false;
       } else {
