@@ -1,7 +1,9 @@
-const API_BASE = import.meta.env.VITE_API_BASE;
+import { API_BASE } from '$lib/api/config.js';
+
+const API_URL = `${API_BASE}/auth`;
 
 export async function login(email, password) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -15,7 +17,7 @@ export async function login(email, password) {
 }
 
 export async function register(email, password) {
-  const res = await fetch(`${API_BASE}/auth/register`, {
+  const res = await fetch(`${API_URL}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),

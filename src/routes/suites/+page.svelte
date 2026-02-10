@@ -1,3 +1,66 @@
+<script>
+  import { onMount } from "svelte";
+  import { getRooms } from "$lib/services/rooms.js";
+  import BookingForm from "$lib/components/BookingForm.svelte";
+  import LoginModal from "$lib/components/LoginModal.svelte";
+  import { isAuthenticated } from "$lib/stores/auth.js";
+  import { showToast } from "$lib/stores/toast";
+  import { get } from "svelte/store";
+
+  let rooms = [];
+  let showBooking = false;
+  let selectedRoom = null;
+  let showLogin = false;
+
+  let sileneJunior, lupineJunior, sileneSuite, lupineSuite;
+
+  async function fetchRooms() {
+    try {
+      const allRooms = await getRooms();
+      rooms = allRooms.map((room) => ({
+        ...room,
+        features: room.features || [
+          `Size: ${room.size || "N/A"}`,
+          `Capacity: ${room.capacity || 2} guests`,
+          room.bathroom || "Shower or bathtub",
+          "Wifi & TV",
+          room.coffee || "Coffee machine or kettle",
+          room.view || "Beautiful view",
+        ],
+      }));
+
+      sileneJunior = rooms.find((r) => r.type === "Silene Junior Suite");
+      lupineJunior = rooms.find((r) => r.type === "Lupine Junior Suite");
+      sileneSuite = rooms.find((r) => r.type === "Silene Suite");
+      lupineSuite = rooms.find((r) => r.type === "Lupine Suite");
+    } catch (err) {
+      console.error("Error fetching rooms:", err);
+    }
+  }
+
+  onMount(fetchRooms);
+
+  function handleBook(room) {
+    if (get(isAuthenticated)) {
+      // User is logged in
+      selectedRoom = room;
+      showBooking = true;
+    } else {
+      // User is not logged in
+      showToast("Please log in to book a room.", "error");
+    }
+  }
+
+  function closeBooking() {
+    selectedRoom = null;
+    showBooking = false;
+  }
+
+  function closeLogin() {
+    showLogin = false;
+  }
+</script>
+
 <svelte:head>
   <title>Suites | Skye Suites</title>
 </svelte:head>
@@ -10,7 +73,6 @@
     aria-labelledby="suites-top-heading"
   >
     <div class="container">
-      <!-- BOOTSTRAP: Container -->
       <div class="suites-intro">
         <h2 id="suites-top-heading" class="suites-heading">Junior Suite</h2>
         <p class="suites-subheading">
@@ -20,7 +82,6 @@
 
       <div class="suites-card">
         <div class="suites-card-tabs">
-          <!-- Junior Suite Tabs using buttons and proper ARIA roles -->
           <ul
             class="nav nav-pills suites-tabs"
             role="tablist"
@@ -38,7 +99,7 @@
                 aria-selected="true"
                 tabindex="0"
               >
-                SILENE JUNIOR SUITE
+                {sileneJunior?.type || "Loading..."}
               </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -53,159 +114,89 @@
                 aria-selected="false"
                 tabindex="-1"
               >
-                LUPINE JUNIOR SUITE
+                {lupineJunior?.type || "Loading..."}
               </button>
             </li>
           </ul>
         </div>
 
         <div class="tab-content">
-          <div
-            class="tab-pane fade show active suites-room-info"
-            role="tabpanel"
-            id="tab-content-silene-junior"
-            aria-labelledby="tab-silene-junior"
-            tabindex="0"
-          >
-            <div class="row">
-              <div class="col-md-7 col-sm-12 left">
-                <img
-                  class="img-fluid suites-room-img"
-                  src="https://images.pexels.com/photos/16436963/pexels-photo-16436963.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                  alt="A two-person bed inside the Junior Suite room with elegant décor"
-                  loading="lazy"
-                />
-              </div>
-
-              <div class="col-md-5 col-sm-12 right">
-                <div class="suites-room-features">
-                  <ul class="suites-features-list">
-                    <li class="suites-features-item">
-                      <span
-                        ><i
-                          class="fa-solid fa-ruler-combined suites-features-icon"
-                        ></i>215 sq.ft. / 20 sq.m</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-user-group suites-features-icon"
-                        ></i>For 2 people</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-bath suites-features-icon"
-                        ></i>Shower or bathtub</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-wifi suites-features-icon"
-                        ></i>Wifi &amp; TV</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-mug-saucer suites-features-icon"
-                        ></i>Kettle or coffee machine</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-mountain suites-features-icon"
-                        ></i>Mountain view</span
-                      >
-                    </li>
-                  </ul>
-                  <button
-                    class="suites-book-btn btn btn-danger"
-                    type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#bookNowModal"
-                    data-suite="silene-junior-suite"
-                    aria-label="Book Silene Junior Suite"
-                  >
-                    BOOK NOW
-                  </button>
+          {#if sileneJunior}
+            <div
+              class="tab-pane fade show active suites-room-info"
+              role="tabpanel"
+              id="tab-content-silene-junior"
+              aria-labelledby="tab-silene-junior"
+              tabindex="0"
+            >
+              <div class="row">
+                <div class="col-md-7 col-sm-12 left">
+                  <img
+                    class="img-fluid suites-room-img"
+                    src={sileneJunior.images[0] || "default-room.jpg"}
+                    alt={sileneJunior.description || "Silene Junior Suite"}
+                    loading="lazy"
+                  />
+                </div>
+                <div class="col-md-5 col-sm-12 right">
+                  <div class="suites-room-features">
+                    <ul class="suites-features-list">
+                      {#each sileneJunior.features as feature}
+                        <li class="suites-features-item">{feature}</li>
+                      {/each}
+                    </ul>
+                    <button
+                      class="suites-book-btn btn btn-danger"
+                      type="button"
+                      on:click={() => handleBook(sileneJunior)}
+                      aria-label={`Book ${sileneJunior.type}`}
+                    >
+                      BOOK NOW
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          {/if}
 
-          <div
-            class="tab-pane fade suites-room-info"
-            role="tabpanel"
-            id="tab-content-lupine-junior"
-            aria-labelledby="tab-lupine-junior"
-            tabindex="0"
-          >
-            <div class="row">
-              <div class="col-md-7 col-sm-12 left">
-                <img
-                  class="img-fluid suites-room-img"
-                  src="https://images.pexels.com/photos/31817153/pexels-photo-31817153.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                  alt="Lupine Junior Suite room with modern furniture and large windows"
-                  loading="lazy"
-                />
-              </div>
+          {#if lupineJunior}
+            <div
+              class="tab-pane fade suites-room-info"
+              role="tabpanel"
+              id="tab-content-lupine-junior"
+              aria-labelledby="tab-lupine-junior"
+              tabindex="0"
+            >
+              <div class="row">
+                <div class="col-md-7 col-sm-12 left">
+                  <img
+                    class="img-fluid suites-room-img"
+                    src={lupineJunior.images[0] || "default-room.jpg"}
+                    alt={lupineJunior.description || "Lupine Junior Suite"}
+                    loading="lazy"
+                  />
+                </div>
+                <div class="col-md-5 col-sm-12 right">
+                  <div class="suites-room-features">
+                    <ul class="suites-features-list">
+                      {#each lupineJunior.features as feature}
+                        <li class="suites-features-item">{feature}</li>
+                      {/each}
+                    </ul>
 
-              <div class="col-md-5 col-sm-12 right">
-                <div class="suites-room-features">
-                  <ul class="suites-features-list">
-                    <li class="suites-features-item">
-                      <span
-                        ><i
-                          class="fa-solid fa-ruler-combined suites-features-icon"
-                        ></i>230 sq.ft. / 21 sq.m</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-user-group suites-features-icon"
-                        ></i>For 2 people</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-bath suites-features-icon"
-                        ></i>Bathtub</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-wifi suites-features-icon"
-                        ></i>Wifi &amp; TV</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-mug-saucer suites-features-icon"
-                        ></i>Coffee machine</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i
-                          class="fa-solid fa-umbrella-beach suites-features-icon"
-                        ></i>Ocean view</span
-                      >
-                    </li>
-                  </ul>
-                  <button
-                    class="suites-book-btn btn btn-danger"
-                    type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#bookNowModal"
-                    data-suite="lupine-junior-suite"
-                    aria-label="Book Lupine Junior Suite"
-                  >
-                    BOOK NOW
-                  </button>
+                    <button
+                      class="suites-book-btn btn btn-danger"
+                      type="button"
+                      on:click={() => handleBook(lupineJunior)}
+                      aria-label={`Book ${lupineJunior.type}`}
+                    >
+                      BOOK NOW
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          {/if}
         </div>
       </div>
     </div>
@@ -214,7 +205,6 @@
   <!-- Suite Section -->
   <section class="suites-section" aria-labelledby="suites-main-heading">
     <div class="container">
-      <!-- BOOTSTRAP: Container -->
       <div class="suites-intro">
         <h2 id="suites-main-heading" class="suites-heading">Suite</h2>
         <p class="suites-subheading">
@@ -222,6 +212,7 @@
           amenities.
         </p>
       </div>
+
       <div class="suites-card">
         <div class="suites-card-tabs">
           <ul
@@ -241,7 +232,7 @@
                 aria-selected="true"
                 tabindex="0"
               >
-                SILENE SUITE
+                {sileneSuite?.type || "Loading..."}
               </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -256,198 +247,133 @@
                 aria-selected="false"
                 tabindex="-1"
               >
-                LUPINE SUITE
+                {lupineSuite?.type || "Loading..."}
               </button>
             </li>
           </ul>
         </div>
 
         <div class="tab-content">
-          <div
-            class="tab-pane fade show active suites-room-info"
-            role="tabpanel"
-            id="tab-content-silene-suite"
-            aria-labelledby="tab-silene-suite"
-            tabindex="0"
-          >
-            <div class="row">
-              <div class="col-md-7 col-sm-12 left">
-                <img
-                  class="img-fluid suites-room-img"
-                  src="https://images.pexels.com/photos/28054852/pexels-photo-28054852.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                  alt="A two-person bed inside the Suite Room with elegant bedding and mountain view"
-                  loading="lazy"
-                />
-              </div>
+          {#if sileneSuite}
+            <div
+              class="tab-pane fade show active suites-room-info"
+              role="tabpanel"
+              id="tab-content-silene-suite"
+              aria-labelledby="tab-silene-suite"
+              tabindex="0"
+            >
+              <div class="row">
+                <div class="col-md-7 col-sm-12 left">
+                  <img
+                    class="img-fluid suites-room-img"
+                    src={sileneSuite.images[0] || "default-room.jpg"}
+                    alt={sileneSuite.description || "Silene Suite"}
+                    loading="lazy"
+                  />
+                </div>
+                <div class="col-md-5 col-sm-12 right">
+                  <div class="suites-room-features">
+                    <ul class="suites-features-list">
+                      {#each sileneSuite.features as feature}
+                        <li class="suites-features-item">{feature}</li>
+                      {/each}
+                    </ul>
 
-              <div class="col-md-5 col-sm-12 right">
-                <div class="suites-room-features">
-                  <ul class="suites-features-list">
-                    <li class="suites-features-item">
-                      <span
-                        ><i
-                          class="fa-solid fa-ruler-combined suites-features-icon"
-                        ></i>430 sq.ft. / 40 sq.m</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-user-group suites-features-icon"
-                        ></i>For 2 people</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-bath suites-features-icon"
-                        ></i>Shower or bathtub</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-wifi suites-features-icon"
-                        ></i>Wifi &amp; TV</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-mug-saucer suites-features-icon"
-                        ></i>Kettle or coffee machine</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i
-                          class="fa-solid fa-bell-concierge suites-features-icon"
-                        ></i>Room Service</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-mountain suites-features-icon"
-                        ></i>Mountain view</span
-                      >
-                    </li>
-                  </ul>
-                  <button
-                    class="suites-book-btn btn btn-danger"
-                    type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#bookNowModal"
-                    data-suite="silene-suite"
-                    aria-label="Book Silene Suite"
-                  >
-                    BOOK NOW
-                  </button>
+                    <button
+                      class="suites-book-btn btn btn-danger"
+                      type="button"
+                      on:click={() => handleBook(sileneSuite)}
+                      aria-label={`Book ${sileneSuite.type}`}
+                    >
+                      BOOK NOW
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          {/if}
 
-          <div
-            class="tab-pane fade suites-room-info"
-            role="tabpanel"
-            id="tab-content-lupine-suite"
-            aria-labelledby="tab-lupine-suite"
-            tabindex="0"
-          >
-            <div class="row">
-              <div class="col-md-7 col-sm-12 left">
-                <img
-                  class="img-fluid suites-room-img"
-                  src="https://images.pexels.com/photos/31817155/pexels-photo-31817155.jpeg?auto=compress&cs=tinysrgb&h=650&w=940"
-                  alt="Lupine Suite room with luxurious furnishings and scenic view."
-                  loading="lazy"
-                />
-              </div>
-
-              <div class="col-md-5 col-sm-12 right">
-                <div class="suites-room-features">
-                  <ul class="suites-features-list">
-                    <li class="suites-features-item">
-                      <span
-                        ><i
-                          class="fa-solid fa-ruler-combined suites-features-icon"
-                        ></i>450 sq.ft. / 42 sq.m</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-user-group suites-features-icon"
-                        ></i>For 2 people</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-bath suites-features-icon"
-                        ></i>Bathtub</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-wifi suites-features-icon"
-                        ></i>Wifi &amp; TV</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i class="fa-solid fa-mug-saucer suites-features-icon"
-                        ></i>Coffee machine</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i
-                          class="fa-solid fa-bell-concierge suites-features-icon"
-                        ></i>Room Service</span
-                      >
-                    </li>
-                    <li class="suites-features-item">
-                      <span
-                        ><i
-                          class="fa-solid fa-umbrella-beach suites-features-icon"
-                        ></i>Ocean view</span
-                      >
-                    </li>
-                  </ul>
-                  <button
-                    class="suites-book-btn btn btn-danger"
-                    type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#bookNowModal"
-                    data-suite="lupine-suite"
-                    aria-label="Book Lupine Suite"
-                  >
-                    BOOK NOW
-                  </button>
+          {#if lupineSuite}
+            <div
+              class="tab-pane fade suites-room-info"
+              role="tabpanel"
+              id="tab-content-lupine-suite"
+              aria-labelledby="tab-lupine-suite"
+              tabindex="0"
+            >
+              <div class="row">
+                <div class="col-md-7 col-sm-12 left">
+                  <img
+                    class="img-fluid suites-room-img"
+                    src={lupineSuite.images[0] || "default-room.jpg"}
+                    alt={lupineSuite.description || "Lupine Suite"}
+                    loading="lazy"
+                  />
+                </div>
+                <div class="col-md-5 col-sm-12 right">
+                  <div class="suites-room-features">
+                    <ul class="suites-features-list">
+                      {#each lupineSuite.features as feature}
+                        <li class="suites-features-item">{feature}</li>
+                      {/each}
+                    </ul>
+                    <button
+                      class="suites-book-btn btn btn-danger"
+                      type="button"
+                      on:click={() => handleBook(lupineSuite)}
+                      aria-label={`Book ${lupineSuite.type}`}
+                    >
+                      BOOK NOW
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          {/if}
         </div>
       </div>
     </div>
   </section>
+
+  {#if showBooking}
+    <BookingForm
+      roomId={selectedRoom.id}
+      roomName={selectedRoom.type}
+      roomData={selectedRoom}
+      on:close={closeBooking}
+    />
+  {/if}
+
+  {#if showLogin}
+    <LoginModal on:close={closeLogin} />
+  {/if}
 </main>
 
 <style>
-  /*=============== Suites Page ===============*/
-
-  /* Suites page specific styles - BEM using suites-prefix */
-
-  /* Layout & Spacing */
-  .suites-main {
-    padding: 3rem 0rem 1.5rem 1.5rem;
+  .suites-container {
     max-width: 1200px;
-    margin: 0 auto;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  .suites-main {
+    padding: 3rem 0;
   }
 
   .suites-section {
-    /* margin-bottom: 5rem; */
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    margin-bottom: 3rem;
     text-align: center;
+  }
+
+  /* Let Bootstrap grid work */
+  .suites-room-info {
+    padding: 1.5rem 0;
+  }
+
+  .suites-room-img {
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--border-radius);
   }
 
   .suites-intro {
@@ -466,11 +392,6 @@
     color: #555;
     max-width: 650px;
     margin: 0 auto;
-  }
-
-  /* Main Container */
-  .container {
-    width: 90%;
   }
 
   /* Tabs */
@@ -520,28 +441,6 @@
   .nav-pills .nav-link.active {
     background-color: var(--color-text-dark);
     color: #fff;
-  }
-
-  /* Room info */
-  .suites-room-info {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    padding: 1.5rem 0;
-    align-items: center;
-    width: 100%;
-    max-width: 1000px;
-  }
-
-  .suites-room-img {
-    display: block;
-    width: 30rem;
-    height: auto;
-    object-fit: cover;
-    border-radius: var(--border-radius);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-    margin-left: auto;
-    margin-right: 0;
   }
 
   /* Features list */

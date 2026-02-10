@@ -100,8 +100,6 @@
 </main>
 
 <style>
-  /*=============== Index Page ===============*/
-
   /* Services Section */
   .index-main {
     max-width: 1200px;
