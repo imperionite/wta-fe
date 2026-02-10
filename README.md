@@ -71,3 +71,34 @@ npm run check    # TypeScript linting
 ## Note
 
 Ensure backend runs first. Frontend proxies API calls to `localhost:3000/api` via `VITE_API_BASE`.
+
+## Third-Party Weather API Integration (MS 1 Requirement)
+
+Frontend POC demonstrating integration with a third-party weather API to show external data in the booking flow.
+
+### API
+
+- **Provider:** wttr.in
+- **Endpoint:** `https://wttr.in/{location}?format=j1`
+- **Authentication:** None
+- **Location:** Fixed to _Palawan, Philippines_
+
+### Functionality
+
+- Fetches daily weather forecast on date selection.
+- Shows summarized forecast inline and detailed view in a modal.
+- Filters data to stay period (check-in to day before check-out).
+
+### Data Coverage
+
+- Forecast depends on API availability and may not cover all stay dates.
+- Partial coverage is indicated in the UI (e.g., “Forecast available for X of Y nights”).
+
+### Data Handling
+
+- Dates normalized on frontend to prevent timezone issues.
+- Only available forecast days are rendered; missing dates are expected.
+
+### Scope
+
+- For demonstration and evaluation only; not intended for production-grade forecasting.
