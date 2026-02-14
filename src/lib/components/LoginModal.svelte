@@ -3,6 +3,7 @@
   import { login } from "$lib/api/auth";
   import { user, accessToken } from "$lib/stores/auth";
   import { showToast } from "$lib/stores/toast";
+  import { goto } from "$app/navigation";
 
   const dispatch = createEventDispatcher();
   let email = "";
@@ -16,6 +17,7 @@
       accessToken.set(data.access);
       user.set(data.user);
       dispatch("close");
+      goto("/");
       showToast(`Welcome back ${data?.user?.email}`, "success");
     } catch (e) {
       error = e.message;
@@ -54,7 +56,36 @@
           Cancel
         </button>
         <button class="btn btn-danger" on:click={submit}> Login </button>
+        <hr />
+
+        <a href="http://localhost:3000/api/auth/google" class="w-100 mb-2">
+          <button
+            type="button"
+            class="btn btn-google d-flex align-items-center justify-content-center w-100"
+          >
+            <img
+              src="https://www.svgrepo.com/show/355037/google.svg"
+              alt="Google Logo"
+              width="20"
+              height="20"
+              class="me-2"
+            />
+            Continue with Google
+          </button>
+        </a>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  .btn-google {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: #444;
+  }
+
+  .btn-google:hover {
+    background-color: #f5f5f5;
+  }
+</style>

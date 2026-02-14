@@ -1,28 +1,28 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
-  import { register } from '$lib/api/auth';
-  import { user, accessToken } from '$lib/stores/auth';
-  import { showToast } from '$lib/stores/toast';
+  import { createEventDispatcher } from "svelte";
+  import { register } from "$lib/api/auth";
+  import { user, accessToken } from "$lib/stores/auth";
+  import { showToast } from "$lib/stores/toast";
 
   const dispatch = createEventDispatcher();
-  let email = '';
-  let password = '';
-  let error = '';
+  let email = "";
+  let password = "";
+  let error = "";
 
   async function submit() {
-    error = '';
+    error = "";
     try {
       const data = await register(email, password);
       accessToken.set(data.access);
       user.set(data.user);
-      dispatch('close');
+      dispatch("close");
 
       // Show success toast
       showToast(`Welcome ${data?.user?.email}`, "success");
     } catch (e) {
       error = e.message;
 
-      showToast(error, 'error');
+      showToast(error, "error");
     }
   }
 </script>
@@ -35,7 +35,7 @@
       <div class="modal-header">
         <h5 class="modal-title text-dark">Register</h5>
         <!-- svelte-ignore a11y_consider_explicit_label -->
-        <button class="btn-close" on:click={() => dispatch('close')}></button>
+        <button class="btn-close" on:click={() => dispatch("close")}></button>
       </div>
 
       <div class="modal-body">
@@ -53,13 +53,40 @@
       </div>
 
       <div class="modal-footer">
-        <button class="btn btn-secondary" on:click={() => dispatch('close')}>
+        <button class="btn btn-secondary" on:click={() => dispatch("close")}>
           Cancel
         </button>
-        <button class="btn btn-danger" on:click={submit}>
-          Register
-        </button>
+        <button class="btn btn-danger" on:click={submit}> Register </button>
+        <hr />
+
+        <a href="http://localhost:3000/api/auth/google" class="w-100 mb-2">
+          <button
+            type="button"
+            class="btn btn-google d-flex align-items-center justify-content-center w-100"
+          >
+            <img
+              src="https://www.svgrepo.com/show/355037/google.svg"
+              alt="Google Logo"
+              width="20"
+              height="20"
+              class="me-2"
+            />
+            Continue with Google
+          </button>
+        </a>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  .btn-google {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: #444;
+  }
+
+  .btn-google:hover {
+    background-color: #f5f5f5;
+  }
+</style>
