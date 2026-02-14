@@ -8,6 +8,9 @@ export const user = writable(storedUser ? JSON.parse(storedUser) : null);
 export const accessToken = writable(storedToken || null);
 export const isAuthenticated = writable(!!storedToken);
 
+// New store to force TopNav re-render
+export const authUpdated = writable(0);
+
 // Persist only in browser
 if (browser) {
   user.subscribe((value) => {

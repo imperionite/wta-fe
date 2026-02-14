@@ -1,12 +1,15 @@
 <script>
   import { onMount } from "svelte";
-  import { user, isAuthenticated, accessToken } from "$lib/stores/auth";
   import LoginModal from "$lib/components/LoginModal.svelte";
   import RegisterModal from "$lib/components/RegisterModal.svelte";
+  import { user, isAuthenticated, authUpdated, accessToken } from "$lib/stores/auth";
+
+  let accountOpen = false;
+
+  $: $authUpdated;
 
   let showLogin = false;
   let showRegister = false;
-  let accountOpen = false;
 
   function toggleAccount() {
     accountOpen = !accountOpen;

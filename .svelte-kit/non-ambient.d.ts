@@ -27,7 +27,7 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/dining" | "/experience" | "/suites";
+		RouteId(): "/" | "/dining" | "/experience" | "/oauth-success" | "/profile" | "/suites";
 		RouteParams(): {
 			
 		};
@@ -35,9 +35,11 @@ declare module "$app/types" {
 			"/": Record<string, never>;
 			"/dining": Record<string, never>;
 			"/experience": Record<string, never>;
+			"/oauth-success": Record<string, never>;
+			"/profile": Record<string, never>;
 			"/suites": Record<string, never>
 		};
-		Pathname(): "/" | "/dining" | "/dining/" | "/experience" | "/experience/" | "/suites" | "/suites/";
+		Pathname(): "/" | "/dining" | "/dining/" | "/experience" | "/experience/" | "/oauth-success" | "/oauth-success/" | "/profile" | "/profile/" | "/suites" | "/suites/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/css/index.css" | "/css/suites.css" | "/images/logo.png" | "/robots.txt" | string & {};
 	}
