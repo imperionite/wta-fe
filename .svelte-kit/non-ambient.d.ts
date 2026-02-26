@@ -27,19 +27,20 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/dining" | "/experience" | "/oauth-success" | "/profile" | "/suites";
+		RouteId(): "/" | "/access" | "/dining" | "/experience" | "/oauth-success" | "/profile" | "/suites";
 		RouteParams(): {
 			
 		};
 		LayoutParams(): {
 			"/": Record<string, never>;
+			"/access": Record<string, never>;
 			"/dining": Record<string, never>;
 			"/experience": Record<string, never>;
 			"/oauth-success": Record<string, never>;
 			"/profile": Record<string, never>;
 			"/suites": Record<string, never>
 		};
-		Pathname(): "/" | "/dining" | "/dining/" | "/experience" | "/experience/" | "/oauth-success" | "/oauth-success/" | "/profile" | "/profile/" | "/suites" | "/suites/";
+		Pathname(): "/" | "/access" | "/access/" | "/dining" | "/dining/" | "/experience" | "/experience/" | "/oauth-success" | "/oauth-success/" | "/profile" | "/profile/" | "/suites" | "/suites/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/css/index.css" | "/css/suites.css" | "/images/logo.png" | "/robots.txt" | string & {};
 	}
