@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { accessToken, user, isAuthenticated } from "$lib/stores/auth";
+    import { showToast } from "$lib/stores/toast";
 
   onMount(async () => {
     const params = new URLSearchParams(window.location.search);
@@ -29,6 +30,7 @@
       isAuthenticated.set(true);
 
       await goto("/", { invalidateAll: true });
+      showToast(`Welcome back ${profile?.email}`, "success");
     } catch (err) {
       console.error("OAuth error:", err);
 
