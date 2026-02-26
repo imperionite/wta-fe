@@ -409,3 +409,14 @@ label.form-label::after {
   letter-spacing: 0.12em;
   text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.8);
 }
+
+.access-header {
+  background-image: url("https://images.pexels.com/photos/16253098/pexels-photo-16253098.jpeg");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  text-align: center;
+  letter-spacing: 0.12em;
+  text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.8);
+}
