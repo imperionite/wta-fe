@@ -1,3 +1,46 @@
+<script>
+  import { enhance } from '$app/forms';
+  import { showToast } from '$lib/stores/toast.js';
+
+  let loading = false;
+  let email = '';
+  let emailError = '';
+
+  function validateEmail(value) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!value) {
+      emailError = '';
+    } else if (!emailRegex.test(value)) {
+      emailError = 'Please enter a valid email.';
+    } else {
+      emailError = '';
+    }
+  }
+
+  function handleInput(e) {
+    email = e.target.value;
+    validateEmail(email);
+  }
+
+  function handleSubmit() {
+    loading = true;
+
+    return async ({ result }) => {
+      loading = false;
+
+      if (result.type === 'success') {
+        showToast('Successfully subscribed!', 'success');
+        email = '';
+      } else if (result.type === 'failure') {
+        showToast(result.data?.message || 'Failed to subscribe.', 'error');
+      } else if (result.type === 'error') {
+        showToast('An error occurred while subscribing.', 'error');
+      }
+    };
+  }
+</script>
+
+
 <footer class="footer">
   <div class="footer__container">
     <!-- Footer Contact Column Element -->
@@ -67,17 +110,25 @@
       <h3 id="footer-newsletter-heading" class="footer__heading">
         Subscribe to our newsletter
       </h3>
-      <form id="newsletter-form" class="needs-validation" novalidate>
+      <form 
+        id="newsletter-form" 
+        class="needs-validation" 
+        novalidate
+        method="POST"
+        action="/newsletter"
+        use:enhance={handleSubmit}>
         <div class="mb-3">
-          <label for="newsletter-email" class="visually-hidden"
-            >Email address</label
-          >
+          <label for="newsletter-email" class="visually-hidden">
+            Email address
+          </label>
           <input
             type="email"
-            class="form-control"
+            class="form-control {emailError ? 'is-invalid' : ''}"
             id="newsletter-email"
-            name="newsletterEmail"
+            name="email"
             placeholder="Email address"
+            value={email}
+            on:input={handleInput}
             required
           />
           <div class="invalid-feedback">Please enter a valid email.</div>
@@ -86,10 +137,11 @@
           type="submit"
           class="btn btn-danger w-100"
           id="footerSubscribeBtn"
-        >
-          Subscribe
+          disabled={loading}>
+          {loading ? 'Subscribing...' : 'Subscribe'}
         </button>
       </form>
+
     </section>
   </div>
 </footer>
@@ -136,10 +188,7 @@
       >
         <div class="modal-body px-4">
           <div class="mb-3">
-            <label
-              for="modal-newsletter-email"
-              class="form-label visually-hidden"
-            >
+            <label for="modal-newsletter-email" class="form-label visually-hidden">
               Email address
             </label>
             <input
@@ -156,18 +205,17 @@
           </div>
         </div>
 
-        <div
-          class="modal-footer d-flex justify-content-between border-0 px-4 pb-4"
-        >
+        <div class="modal-footer d-flex justify-content-between border-0 px-4 pb-4">
           <button
             type="button"
             class="btn btn-outline-secondary modal-newsletter__btn-no"
             id="modal-no-thanks-btn"
+            on:click={handleNoThanks}
           >
             No Thanks
           </button>
-          <button type="submit" class="btn btn-danger fw-bold w-50">
-            Subscribe
+          <button type="submit" class="btn btn-danger fw-bold w-50" disabled={loading}>
+            {loading ? 'Subscribing...' : 'Subscribe'}
           </button>
         </div>
       </form>
