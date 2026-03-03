@@ -1,18 +1,14 @@
 import { fail } from '@sveltejs/kit';
 
-const BE_API_URL = 'http://localhost:3000/api/contact'; 
+const BE_API_URL = 'http://localhost:3000/api/subscription/subscribe';
 
 export const actions = {
   default: async ({ request }) => {
-
     try {
       const formData = await request.formData();
 
-      const contactData = {
-        name: `${formData.get('firstName')} ${formData.get('lastName')}`,
-        email: formData.get('email'),
-        subject: formData.get('title'),
-        message: formData.get('message'),
+      const subscriptionData = {
+        email: formData.get('email')?.trim(),
       };
 
       const response = await fetch(BE_API_URL, {
@@ -20,13 +16,13 @@ export const actions = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(contactData),
+        body: JSON.stringify(subscriptionData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         return fail(response.status, {
-          message: errorData.message || 'Failed to send message',
+          message: errorData.message || 'Failed to subscribe',
         });
       }
 
@@ -34,9 +30,8 @@ export const actions = {
 
       return {
         success: true,
-        message: 'Message sent successfully!',
+        message: 'Successfully subscribed!',
       };
-
     } catch (error) {
       return fail(500, {
         message: 'An error occurred: ' + error.message,

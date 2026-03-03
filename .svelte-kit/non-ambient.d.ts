@@ -27,7 +27,7 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/access" | "/admin" | "/api" | "/api/contact" | "/dining" | "/experience" | "/my-bookings" | "/oauth-success" | "/profile" | "/suites";
+		RouteId(): "/" | "/access" | "/admin" | "/api" | "/api/contact" | "/dining" | "/experience" | "/my-bookings" | "/newsletter" | "/oauth-success" | "/profile" | "/suites";
 		RouteParams(): {
 			
 		};
@@ -40,11 +40,12 @@ declare module "$app/types" {
 			"/dining": Record<string, never>;
 			"/experience": Record<string, never>;
 			"/my-bookings": Record<string, never>;
+			"/newsletter": Record<string, never>;
 			"/oauth-success": Record<string, never>;
 			"/profile": Record<string, never>;
 			"/suites": Record<string, never>
 		};
-		Pathname(): "/" | "/access" | "/access/" | "/admin" | "/admin/" | "/api" | "/api/" | "/api/contact" | "/api/contact/" | "/dining" | "/dining/" | "/experience" | "/experience/" | "/my-bookings" | "/my-bookings/" | "/oauth-success" | "/oauth-success/" | "/profile" | "/profile/" | "/suites" | "/suites/";
+		Pathname(): "/" | "/access" | "/access/" | "/admin" | "/admin/" | "/api" | "/api/" | "/api/contact" | "/api/contact/" | "/dining" | "/dining/" | "/experience" | "/experience/" | "/my-bookings" | "/my-bookings/" | "/newsletter" | "/newsletter/" | "/oauth-success" | "/oauth-success/" | "/profile" | "/profile/" | "/suites" | "/suites/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/images/logo.png" | "/robots.txt" | string & {};
 	}

@@ -6,7 +6,7 @@
   let formElement;
   let errors = {};
   let isSubmitting = false;
-  let emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
+  const emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
 
   // Contact Form Validation
   function isContactFormFilled() {
@@ -240,7 +240,9 @@
           <button 
             type="submit" 
             class="btn btn-danger"
-            disabled={Object.keys(errors).length > 0 || !isContactFormFilled()}>SEND</button>
+            disabled={Object.keys(errors).length > 0 || !isContactFormFilled() || isSubmitting}>
+            {isSubmitting ? 'Sending...' : 'SEND'}
+          </button>
         </div>
       </form>
       <!-- End Contact Form Block -->
