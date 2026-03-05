@@ -30,6 +30,19 @@
     note: "",
   };
 
+  let touched = {
+    firstName: false,
+    lastName: false,
+    phone: false,
+    email: false,
+    checkInDate: false,
+    checkOutDate: false,
+    adults: false,
+    children: false,
+    boardType: false,
+    note: false,
+  };
+
   const validationErrors = writable({});
 
   let isValidForm = false;
@@ -43,8 +56,7 @@
       }
     }
     validationErrors.set(errors);
-    isValidForm = Object.keys(errors).length === 0;
-    return isValidForm;
+    isValidForm = Object.keys(errors).length === 0;    
   }
 
   $: if (form) {
@@ -145,7 +157,7 @@
   }
 
   async function submit() {
-    if (!validateForm()){
+    if (!isValidForm){
       showToast("Please correct the errors in the form.", "error");
       return;
     }
@@ -210,11 +222,12 @@
           <div class="col-md-6">
             <input
               class="form-control"
-              class:is-invalid={$validationErrors.firstName}
+              class:is-invalid={touched.firstName && $validationErrors.firstName}
               placeholder="First name"
               bind:value={form.firstName}
+              on:blur={() => (touched.firstName = true)}
             />
-            {#if $validationErrors.firstName}
+            {#if touched.firstName && $validationErrors.firstName}
               <div class="invalid-feedback d-block">
                 {$validationErrors.firstName}
               </div>
@@ -224,11 +237,12 @@
           <div class="col-md-6">
             <input
               class="form-control"
-              class:is-invalid={$validationErrors.lastName}
+              class:is-invalid={touched.lastName && $validationErrors.lastName}
               placeholder="Last name"
               bind:value={form.lastName}
+              on:blur={() => (touched.lastName = true)}
             />
-            {#if $validationErrors.lastName}
+            {#if touched.lastName && $validationErrors.lastName}
               <div class="invalid-feedback d-block">
                 {$validationErrors.lastName}
               </div>
@@ -238,11 +252,12 @@
           <div class="col-md-6">
             <input
               class="form-control"
-              class:is-invalid={$validationErrors.phone}
+              class:is-invalid={touched.phone && $validationErrors.phone}
               placeholder="Phone"
               bind:value={form.phone}
+              on:blur={() => (touched.phone = true)}
             />
-            {#if $validationErrors.phone}
+            {#if touched.phone && $validationErrors.phone}
               <div class="invalid-feedback d-block">
                 {$validationErrors.phone}
               </div>
@@ -253,11 +268,12 @@
             <input
               type="email"
               class="form-control"
-              class:is-invalid={$validationErrors.email}
+              class:is-invalid={touched.email && $validationErrors.email}
               placeholder="Email"
               bind:value={form.email}
+              on:blur={() => (touched.email = true)}
             />
-            {#if $validationErrors.email}
+            {#if touched.email && $validationErrors.email}
               <div class="invalid-feedback d-block">
                 {$validationErrors.email}
               </div>
@@ -270,10 +286,12 @@
             <input
               type="date"
               class="form-control"
-              class:is-invalid={$validationErrors.checkInDate}
+              class:is-invalid={touched.checkInDate && $validationErrors.checkInDate}
               bind:value={form.checkInDate}
+              on:blur={() => (touched.checkInDate = true)}
+              on:change={() => (touched.checkInDate = true)}
             />
-            {#if $validationErrors.checkInDate}
+            {#if touched.checkInDate && $validationErrors.checkInDate}
               <div class="invalid-feedback d-block">
                 {$validationErrors.checkInDate}
               </div>
@@ -286,11 +304,13 @@
             <input
               type="date"
               class="form-control"
-              class:is-invalid={$validationErrors.checkOutDate}
+              class:is-invalid={touched.checkOutDate && $validationErrors.checkOutDate}
               bind:value={form.checkOutDate}
               min={form.checkInDate}
+              on:blur={() => (touched.checkOutDate = true)}
+              on:change={() => (touched.checkOutDate = true)}
             />
-            {#if $validationErrors.checkOutDate}
+            {#if touched.checkOutDate && $validationErrors.checkOutDate}
               <div class="invalid-feedback d-block">
                 {$validationErrors.checkOutDate}
               </div>
@@ -350,10 +370,11 @@
               type="number"
               min="1"
               class="form-control"
-              class:is-invalid={$validationErrors.adults}
+              class:is-invalid={touched.adults && $validationErrors.adults}
               bind:value={form.adults}
+              on:blur={() => (touched.adults = true)}
             />
-            {#if $validationErrors.adults}
+            {#if touched.adults && $validationErrors.adults}
               <div class="invalid-feedback d-block">
                 {$validationErrors.adults}
               </div>
@@ -367,10 +388,11 @@
               type="number"
               min="0"
               class="form-control"
-              class:is-invalid={$validationErrors.children}
+              class:is-invalid={touched.children && $validationErrors.children}
               bind:value={form.children}
+              on:blur={() => (touched.children = true)}
             />
-            {#if $validationErrors.children}
+            {#if touched.children && $validationErrors.children}
               <div class="invalid-feedback d-block">
                 {$validationErrors.children}
               </div>
@@ -382,13 +404,15 @@
             <label class="form-label">Board</label>
             <select
               class="form-select"
-              class:is-invalid={$validationErrors.boardType}
+              class:is-invalid={touched.boardType && $validationErrors.boardType}
               bind:value={form.boardType}
+              on:blur={() => (touched.boardType = true)}
+              on:change={() => (touched.boardType = true)}
             >
               <option>Breakfast</option>
               <option>Half-board</option>
             </select>
-            {#if $validationErrors.boardType}
+            {#if touched.boardType && $validationErrors.boardType}
               <div class="invalid-feedback d-block">
                 {$validationErrors.boardType}
               </div>
@@ -399,12 +423,13 @@
             <!-- svelte-ignore element_invalid_self_closing_tag -->
             <textarea
               class="form-control"
-              class:is-invalid={$validationErrors.note}
+              class:is-invalid={touched.note && $validationErrors.note}
               rows="3"
               placeholder="Special requests (optional)"
               bind:value={form.note}
+              on:blur={() => (touched.note = true)}
             />
-            {#if $validationErrors.note}
+            {#if touched.note && $validationErrors.note}
               <div class="invalid-feedback d-block">
                 {$validationErrors.note}
               </div>

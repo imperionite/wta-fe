@@ -17,6 +17,11 @@
     password: "",
   };
 
+  let touched = {
+    email: false,
+    password: false,
+  };
+
   const validationErrors = writable({});
   let isValidForm = false;
   let loading = false;
@@ -30,8 +35,7 @@
       }
     }
     validationErrors.set(errors);
-    isValidForm = Object.keys(errors).length === 0;
-    return isValidForm;
+    isValidForm = Object.keys(errors).length === 0;    
   }
 
   $: if (form) {
@@ -39,7 +43,7 @@
   }
 
   async function submit() {
-    if (!validateForm()) {
+    if (!isValidForm) {
       showToast("Please correct the errors in the form.", "error");
       return;
     }
@@ -75,11 +79,12 @@
           <div class="mb-2">
             <input
               class="form-control"
-              class:is-invalid={$validationErrors.email}
+              class:is-invalid={touched.email && $validationErrors.email}
               placeholder="Email"
               bind:value={form.email}
+              on:blur={() => (touched.email = true)}
             />
-            {#if $validationErrors.email}
+            {#if touched.email && $validationErrors.email}
               <div class="invalid-feedback d-block">
                 {$validationErrors.email}
               </div>
@@ -89,11 +94,12 @@
             <input
               type="password"
               class="form-control"
-              class:is-invalid={$validationErrors.password}
+              class:is-invalid={touched.password && $validationErrors.password}
               placeholder="Password"
               bind:value={form.password}
+              on:blur={() => (touched.password = true)}
             />
-            {#if $validationErrors.password}
+            {#if touched.password && $validationErrors.password}
               <div class="invalid-feedback d-block">
                 {$validationErrors.password}
               </div>
