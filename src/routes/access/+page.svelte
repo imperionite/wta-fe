@@ -1,14 +1,13 @@
 <script>
-  import { enhance } from '$app/forms';
+  import { API_BASE } from '$lib/api/config.js';
   import { showToast } from '$lib/stores/toast.js';
   
-  export let form;
   let formElement;
   let errors = {};
   let isSubmitting = false;
   const emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
+  const nameRegex = /^[\p{L}]+([-'\s][\p{L}]+)*$/u;
 
-  // Contact Form Validation
   function isContactFormFilled() {
     const title = formElement?.elements.title.value?.trim();
     const firstName = formElement?.elements.firstName.value?.trim();
@@ -30,6 +29,10 @@
       case 'title':
         if (!title) {
           errors.title = 'Subject is required.';
+        } else if (title.length < 2) {
+          errors.title = 'Subject must be at least 2 characters.';
+        } else if (title.length > 199) {
+          errors.title = 'Subject must be less than 200 characters.';
         } else {
           delete errors.title;
         }
@@ -38,6 +41,10 @@
       case 'firstName':
         if (!firstName) {
           errors.firstName = 'First name is required.';
+        } else if (firstName.length > 29) {
+          errors.firstName = 'First name must be less than 30 characters.';
+        } else if (!nameRegex.test(firstName)) {
+          errors.firstName = 'First name can include letters, spaces, hyphens( - ), and apostrophes( \' ). No leading or trailing hyphens or apostrophes allowed.';
         } else {
           delete errors.firstName;
         }
@@ -46,28 +53,37 @@
       case 'lastName':
         if (!lastName) {
           errors.lastName = 'Last name is required.';
+        } else if (lastName.length > 19) {
+          errors.lastName = 'Last name must be less than 20 characters.';
+        } else if (!nameRegex.test(lastName)) {
+          errors.lastName = 'Last name can include letters, spaces, hyphens( - ), and apostrophes( \' ). No leading or trailing hyphens or apostrophes allowed.';
         } else {
           delete errors.lastName;
         }
         break;
 
       case 'email':
-        if (!email || !emailRegex.test(email)) {
-          errors.email = 'Valid email is required.';
+        if (!email) {
+          errors.email = 'Email is required.';
+        } else if (!emailRegex.test(email)) {
+          errors.email = 'Invalid email format.';
         } else {
           delete errors.email;
         }
         break;
 
       case 'message':
-        if (!message || message.length < 5) {
-          errors.message = 'Message must be at least 5 characters long.';
+        if (!message) {
+          errors.message = 'Message is required.';
+        } else if (message.length < 5) {
+          errors.message = 'Message must be at least 5 characters.';
+        } else if (message.length > 499) {
+          errors.message = 'Message must be less than 500 characters.';
         } else {
           delete errors.message;
         }
         break;
-    }
-
+    }  
     errors = errors;
   }
 
@@ -81,41 +97,48 @@
     return Object.keys(errors).length === 0;
   }
 
-  // Submission Handlers
-  function handleContactFormSubmit(e) {
+  async function handleContactFormSubmit(e) {
+    e.preventDefault();
     
     if (!validateContactForm()) {
-      e.preventDefault();
-      showToast('Invalid Input.', 'error');
-    } else {
-      isSubmitting = true;
-    }
-  }
-
-  function handleContactFormSuccess() {
-    return async ({ result, update }) => {
-
-      if (!validateContactForm()) {
       showToast('Invalid Input.', 'error');
       return;
+    }
+
+    isSubmitting = true;
+
+    try {
+      const contactData = {
+        name: `${formElement.elements.firstName.value} ${formElement.elements.lastName.value}`,
+        email: formElement.elements['contact-form-email'].value,
+        subject: formElement.elements.title.value,
+        message: formElement.elements.message.value,
+      };
+
+      const response = await fetch(`${API_BASE}/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contactData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        showToast(errorData.message || 'Failed to send message', 'error');
+        isSubmitting = false;
+        return;
       }
 
+      showToast('Message sent successfully!', 'success');
+      formElement.reset();
+      errors = {};
+    } catch (error) {
+      showToast('An error occurred: ' + error.message, 'error');
+    } finally {
       isSubmitting = false;
-
-      if (result.type === 'success') {
-        showToast('Message sent successfully!', 'success');
-        formElement?.reset();
-        errors = {};
-      } else if (result.type === 'failure') {
-        showToast(result.data?.message || 'Failed to send message', 'error');
-      } else if (result.type === 'error') {
-        showToast('An error occurred', 'error');
-      }
-
-      await update();
-    };
+    }
   }
-
 </script>
 
 
@@ -153,11 +176,9 @@
 
       <!-- Contact Form Block -->
       <form 
-        bind:this={formElement}
-        method="POST" 
-        use:enhance={handleContactFormSuccess}
-        on:submit={handleContactFormSubmit}
-        novalidate
+      bind:this={formElement}
+      on:submit={handleContactFormSubmit}
+      novalidate
       >
 
         <p class="form-text text-muted">

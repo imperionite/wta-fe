@@ -1,13 +1,14 @@
 <script>
-  import { enhance } from '$app/forms';
+  import { API_BASE } from '$lib/api/config.js';
   import { showToast } from '$lib/stores/toast.js';
 
   let loading = false;
   let email = '';
   let emailError = '';
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   function validateEmail(value) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!value) {
       emailError = '';
     } else if (!emailRegex.test(value)) {
@@ -22,21 +23,42 @@
     validateEmail(email);
   }
 
-  function handleSubmit() {
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    validateEmail(email);
+    if (emailError) {
+      return;
+    }
+
     loading = true;
 
-    return async ({ result }) => {
-      loading = false;
+    try {
+      const response = await fetch(`${API_BASE}/subscription/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+        }),
+      });
 
-      if (result.type === 'success') {
-        showToast('Successfully subscribed!', 'success');
-        email = '';
-      } else if (result.type === 'failure') {
-        showToast(result.data?.message || 'Failed to subscribe.', 'error');
-      } else if (result.type === 'error') {
-        showToast('An error occurred while subscribing.', 'error');
+      if (!response.ok) {
+        const errorData = await response.json();
+        showToast(errorData.message || 'Failed to subscribe.', 'error');
+        return;
       }
-    };
+
+      const result = await response.json();
+      showToast('Successfully subscribed!', 'success');
+      email = '';
+    } catch (error) {
+      showToast('An error occurred while subscribing.', 'error');
+      console.error('Subscription error:', error);
+    } finally {
+      loading = false;
+    }
   }
 </script>
 
@@ -114,9 +136,7 @@
         id="newsletter-form" 
         class="needs-validation" 
         novalidate
-        method="POST"
-        action="/newsletter"
-        use:enhance={handleSubmit}>
+        on:submit={handleSubmit}>
         <div class="mb-3">
           <label for="newsletter-email" class="visually-hidden">
             Email address
