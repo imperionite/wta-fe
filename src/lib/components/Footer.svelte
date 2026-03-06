@@ -1,3 +1,68 @@
+<script>
+  import { API_BASE } from '$lib/api/config.js';
+  import { showToast } from '$lib/stores/toast.js';
+
+  let loading = false;
+  let email = '';
+  let emailError = '';
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validateEmail(value) {
+
+    if (!value) {
+      emailError = '';
+    } else if (!emailRegex.test(value)) {
+      emailError = 'Please enter a valid email.';
+    } else {
+      emailError = '';
+    }
+  }
+
+  function handleInput(e) {
+    email = e.target.value;
+    validateEmail(email);
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    validateEmail(email);
+    if (emailError) {
+      return;
+    }
+
+    loading = true;
+
+    try {
+      const response = await fetch(`${API_BASE}/subscription/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        showToast(errorData.message || 'Failed to subscribe.', 'error');
+        return;
+      }
+
+      const result = await response.json();
+      showToast('Successfully subscribed!', 'success');
+      email = '';
+    } catch (error) {
+      showToast('An error occurred while subscribing.', 'error');
+      console.error('Subscription error:', error);
+    } finally {
+      loading = false;
+    }
+  }
+</script>
+
+
 <footer class="footer">
   <div class="footer__container">
     <!-- Footer Contact Column Element -->
@@ -67,17 +132,23 @@
       <h3 id="footer-newsletter-heading" class="footer__heading">
         Subscribe to our newsletter
       </h3>
-      <form id="newsletter-form" class="needs-validation" novalidate>
+      <form 
+        id="newsletter-form" 
+        class="needs-validation" 
+        novalidate
+        on:submit={handleSubmit}>
         <div class="mb-3">
-          <label for="newsletter-email" class="visually-hidden"
-            >Email address</label
-          >
+          <label for="newsletter-email" class="visually-hidden">
+            Email address
+          </label>
           <input
             type="email"
-            class="form-control"
+            class="form-control {emailError ? 'is-invalid' : ''}"
             id="newsletter-email"
-            name="newsletterEmail"
+            name="email"
             placeholder="Email address"
+            value={email}
+            on:input={handleInput}
             required
           />
           <div class="invalid-feedback">Please enter a valid email.</div>
@@ -86,10 +157,11 @@
           type="submit"
           class="btn btn-danger w-100"
           id="footerSubscribeBtn"
-        >
-          Subscribe
+          disabled={loading}>
+          {loading ? 'Subscribing...' : 'Subscribe'}
         </button>
       </form>
+
     </section>
   </div>
 </footer>
