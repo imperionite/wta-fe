@@ -53,7 +53,6 @@ declare module '$env/static/private' {
 	export const ZDOTDIR: string;
 	export const MallocNanoZone: string;
 	export const COLOR: string;
-	export const TERM_SESSION_ID: string;
 	export const npm_config_noproxy: string;
 	export const SDKMAN_PLATFORM: string;
 	export const npm_config_local_prefix: string;
@@ -99,9 +98,9 @@ declare module '$env/static/private' {
 	export const SDKMAN_DIR: string;
 	export const VSCODE_GIT_IPC_HANDLE: string;
 	export const npm_config_user_agent: string;
+	export const SDKMAN_CANDIDATES_DIR: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
 	export const GIT_ASKPASS: string;
-	export const SDKMAN_CANDIDATES_DIR: string;
 	export const SECURITYSESSIONID: string;
 	export const npm_node_execpath: string;
 	export const npm_config_prefix: string;
@@ -209,7 +208,6 @@ declare module '$env/dynamic/private' {
 		ZDOTDIR: string;
 		MallocNanoZone: string;
 		COLOR: string;
-		TERM_SESSION_ID: string;
 		npm_config_noproxy: string;
 		SDKMAN_PLATFORM: string;
 		npm_config_local_prefix: string;
@@ -255,9 +253,9 @@ declare module '$env/dynamic/private' {
 		SDKMAN_DIR: string;
 		VSCODE_GIT_IPC_HANDLE: string;
 		npm_config_user_agent: string;
+		SDKMAN_CANDIDATES_DIR: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
 		GIT_ASKPASS: string;
-		SDKMAN_CANDIDATES_DIR: string;
 		SECURITYSESSIONID: string;
 		npm_node_execpath: string;
 		npm_config_prefix: string;
