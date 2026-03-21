@@ -1,1 +1,0 @@
-export const env={"PUBLIC_SITE_BASE":"https://wta-fe.web.app/","PUBLIC_API_BASE":"https://wta-be.onrender.com/api"}
