@@ -1,3 +1,7 @@
+<script>
+    import { siteConfig } from "$lib/config";
+</script>
+
 <main class="container py-5">
   <h1>Terms of Service</h1>
   <p>
