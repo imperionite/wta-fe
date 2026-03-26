@@ -5,10 +5,7 @@
   import { showToast } from "$lib/stores/toast";
   import { registerSchema } from "$lib/utils/validationSchemas";
   import { writable } from "svelte/store";
-
   import { API_BASE } from "$lib/api/config.js";
-
-  const GOOGLE_LOGIN_URL = `${API_BASE}/auth/google`;
 
   const dispatch = createEventDispatcher();
 
@@ -37,7 +34,7 @@
       }
     }
     validationErrors.set(errors);
-    isValidForm = Object.keys(errors).length === 0;    
+    isValidForm = Object.keys(errors).length === 0;
   }
 
   $: if (form) {
@@ -57,13 +54,22 @@
       user.set(data.user);
       dispatch("close");
 
-      // Show success toast
       showToast(`Welcome ${data?.user?.email}`, "success");
     } catch (e) {
       showToast(e.message || "Registration failed.", "error");
     } finally {
       loading = false;
     }
+  }
+
+  // Google signup/login handler
+  function handleGoogleSignup() {
+    if (typeof window === "undefined") return;
+
+    const origin = window.location.origin;
+    const url = `${API_BASE}/auth/google?origin=${encodeURIComponent(origin)}`;
+
+    window.location.href = url;
   }
 </script>
 
@@ -74,6 +80,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title text-dark">Register</h5>
+        <!-- svelte-ignore a11y_consider_explicit_label -->
         <button class="btn-close" on:click={() => dispatch("close")}></button>
       </div>
 
@@ -114,7 +121,8 @@
             <input
               type="password"
               class="form-control"
-              class:is-invalid={touched.confirmPassword && $validationErrors.confirmPassword}
+              class:is-invalid={touched.confirmPassword &&
+                $validationErrors.confirmPassword}
               placeholder="Confirm Password"
               bind:value={form.confirmPassword}
               on:blur={() => (touched.confirmPassword = true)}
@@ -126,7 +134,11 @@
             {/if}
           </div>
 
-          <button class="btn btn-danger w-100 mt-3" type="submit" disabled={!isValidForm || loading}>
+          <button
+            class="btn btn-danger w-100 mt-3"
+            type="submit"
+            disabled={!isValidForm || loading}
+          >
             {#if loading}
               <span class="spinner-border spinner-border-sm me-2"></span>
             {/if}
@@ -134,23 +146,23 @@
           </button>
         </form>
 
-        <hr class="my-4"/>
+        <hr class="my-4" />
 
-        <a href={GOOGLE_LOGIN_URL} class="w-100">
-          <button
-            type="button"
-            class="btn btn-google d-flex align-items-center justify-content-center w-100"
-          >
-            <img
-              src="https://www.svgrepo.com/show/355037/google.svg"
-              alt="Google Logo"
-              width="20"
-              height="20"
-              class="me-2"
-            />
-            Continue with Google
-          </button>
-        </a>
+        <!-- Google button -->
+        <button
+          type="button"
+          class="btn btn-google d-flex align-items-center justify-content-center w-100"
+          on:click={handleGoogleSignup}
+        >
+          <img
+            src="https://www.svgrepo.com/show/355037/google.svg"
+            alt="Google Logo"
+            width="20"
+            height="20"
+            class="me-2"
+          />
+          Continue with Google
+        </button>
       </div>
     </div>
   </div>

@@ -16,15 +16,13 @@
   import Toast from "$lib/components/Toast.svelte";
   import { siteConfig } from "$lib/config";
 
-  export const prerender = false;
-
   $: path = $page.url.pathname;
 
   // Routes that require authentication
   const protectedRoutes = [
     "/profile",
     "/my-bookings",
-    "/oauth-success",
+    // "/oauth-success",
     "/admin",
   ];
 
