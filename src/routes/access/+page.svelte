@@ -1,7 +1,6 @@
 <script>
   import { API_BASE } from "$lib/api/config";
   import { showToast } from "$lib/stores/toast";
-  import { fetchAdminData } from "$lib/utils/admin";
 
   let formElement;
   let errors = {};
@@ -145,11 +144,7 @@
       formElement.reset();
       errors = {};
 
-      try {
-        const data = await fetchAdminData(); // from ./utils/admin
-      } catch (err) {
-        console.error("Failed to refresh admin data after message send", err);
-      }
+    
     } catch (error) {
       showToast("An error occurred: " + error.message, "error");
     } finally {

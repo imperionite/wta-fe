@@ -1,7 +1,7 @@
 <script>
   import { API_BASE } from "$lib/api/config";
   import { showToast } from "$lib/stores/toast";
-  import { fetchAdminData } from "$lib/utils/admin";
+  //import { fetchAdminData } from "$lib/utils/admin";
 
   let loading = false;
   let email = "";
@@ -51,16 +51,6 @@
       const result = await response.json();
       showToast("Successfully subscribed!", "success");
       email = "";
-
-      try {
-        const data = await fetchAdminData();
-        // Reload admin dashboard if open
-        if (window.$reloadAdminDashboards) {
-          window.$reloadAdminDashboards();
-        }
-      } catch (err) {
-        console.error("Failed to refresh admin data after subscription", err);
-      }
     } catch (error) {
       showToast("An error occurred while subscribing.", "error");
       console.error("Subscription error:", error);
